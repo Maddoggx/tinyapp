@@ -58,6 +58,7 @@ app.get("/urls", (req, res) => {
   const user = users[req.session.userID];
   if (!user) return res.status(401).send("PLEASE LOGIN");
   const urls = urlsForUser(user.id, urlDatabase);
+  
   const templateVars = {
     urls,
     user
@@ -71,9 +72,9 @@ app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    userID: user.id
+    userID: user
   };
- 
+ console.log(req.session);
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -97,17 +98,14 @@ app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const shortURL = req.params.shortURL;
   const userUrls = urlsForUser(userID, urlDatabase);
-  //if (!user) return res.redirect("/login");
-  //if (!shortURL) return res.status(400).send("ShortURL does not exist.");
-  //if (user.id !== shortURL.userID) return res.status(401).send("issue with /urls/:shortURL!!");
+  
   const templateVars = {
     shortURL, urlDatabase, userUrls,
-    user: users[userID]
+    user: users[userID],
+    longURL: urlDatabase[shortURL].longURL
   };
   if (!urlDatabase[shortURL]) {
     res.status(404).send('urldatabase not found')
-  } else if (!userID || !userUrls[shortURL]) {
-      res.status(401).send('user id do not match')
   } else {
     res.render("urls_show", templateVars);
   }
@@ -181,7 +179,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.post("/urls/:id/delete", (req, res) => {
