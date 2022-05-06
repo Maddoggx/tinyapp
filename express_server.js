@@ -7,7 +7,6 @@ const { urlsForUser } = require('./helpers.js');
 const cookieParser = require("cookie-parser");
 const bcrypt = require('bcryptjs');
 const cookieSession = require('cookie-session');
-// const { cookie } = require("express/lib/response");
 const PORT = 8080; 
 
 
@@ -103,7 +102,9 @@ app.get("/urls/:shortURL", (req, res) => {
     shortURL, urlDatabase, userUrls,
     user: users[userID],
     longURL: urlDatabase[shortURL].longURL
-  };
+  }
+  if (!userID) res.redirect('/login');
+
   if (!urlDatabase[shortURL]) {
     res.status(404).send('urldatabase not found')
   } else {
